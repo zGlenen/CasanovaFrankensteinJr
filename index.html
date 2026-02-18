@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Argos Waiting - Casanova Frankenstein Jr.</title>
+<style>
+  body { 
+    margin:0; 
+    background:black; 
+    overflow:hidden; 
+    color: white; 
+    font-family: 'Canterbury', sans-serif; 
+  }
+  canvas { display:block; background:black; }
+
+  @font-face {
+    font-family: 'Canterbury';
+    src: url('Canterbury.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+  }
+
+  /* Date style */
+  #date {
+    position: absolute;
+    top: 0px; 
+    width: 100%;
+    text-align: center;
+    font-size: 40px;
+    color: white;
+    text-shadow: 2px 2px 8px black;
+    pointer-events: none; 
+    font-family: 'Canterbury', sans-serif;
+  }
+
+  /* Title style */
+  #title {
+    position: absolute;
+    top: 60px; 
+    width: 100%;
+    text-align: center;
+    font-size: 60px;
+    color: white;
+    text-shadow: 2px 2px 8px black;
+    pointer-events: none; 
+    font-family: 'Canterbury', sans-serif;
+  }
+
+  /* Play button style */
+  #playButton {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 20px 40px;
+    font-size: 30px;
+    cursor: pointer;
+    border: 2px solid white;
+    background: rgba(0,0,0,0.7);
+    color: white;
+    border-radius: 10px;
+    z-index: 10;
+  }
+  #footer {
+    position: absolute;
+    bottom: 10px;
+    width: 100%;
+    text-align: center;
+    font-size: 20px;
+    color: white;
+    text-shadow: 1px 1px 4px black;
+    pointer-events: none;
+    font-family: 'Canterbury', sans-serif;
+  }
+
+  /* Placeholder for Linktree link */
+  #linktree {
+    display: block;
+    margin-top: 5px;
+    font-size: 18px;
+    text-decoration: underline;
+    cursor: pointer;
+    pointer-events: auto; /* allow clicks */
+    color: white;
+  }
+</style>
+</head>
+<body>
+
+<!-- Date and Title -->
+<div id="date">must be bad luck that the best friend that i know left me waiting and
+ i'll wait until i grow old once they come back then i won't be cold now my new dad says 
+that i can't go all 'cause he found me tied to a poll now i'm nervous everytime that i'm left alone
+could get bad luck and be waiting again in the snow once they come back then i won't be cold now my new dad says that 
+i can't go all 'cause he found me tied to a poll
+</div>
+<!--<div id="title">Casanova Frankenstein Jr.</div>-->
+
+<!-- Play button -->
+<div id="playButton">▶ Play Music</div>
+
+<canvas id="dvd"></canvas>
+
+<div id="footer">
+  Casanova Frankenstein Jr - Argos Waiting
+  <a id="linktree" href="https://linktr.ee/casanovafrankensteinjr" target="_blank">listen here</a>
+</div>
+
+<!-- Background music -->
+<audio id="background-music" src="song.mp3" loop></audio>
+
+<script>
+// Canvas setup
+const canvas = document.getElementById('dvd');
+const ctx = canvas.getContext('2d');
+
+function resizeCanvas() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
+
+const img = new Image();
+img.src = 'cover.png'; 
+
+let x = 50, y = 50;
+let dx = 2, dy = 4;
+
+const width = 500;  
+const height = 500; 
+
+let hue = 0;         
+let hueSpeed = 1;    
+
+img.onload = () => {
+  function animate() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.filter = `hue-rotate(${hue}deg)`;
+    ctx.drawImage(img, x, y, width, height);
+
+    x += dx;
+    y += dy;
+
+    if(x < 0 || x + width > canvas.width) dx = -dx;
+    if(y < 0 || y + height > canvas.height) dy = -dy;
+
+    hue = (hue + hueSpeed) % 360;
+
+    requestAnimationFrame(animate);
+  }
+  animate();
+};
+
+// Play button functionality
+const audio = document.getElementById('background-music');
+const playButton = document.getElementById('playButton');
+
+playButton.addEventListener('click', () => {
+  audio.play();
+  playButton.style.display = 'none'; // hide button after click
+});
+</script>
+
+</body>
+</html>
