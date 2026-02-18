@@ -4,105 +4,166 @@
 <meta charset="UTF-8">
 <title>Argos Waiting - Casanova Frankenstein Jr.</title>
 <style>
-  body { 
-    margin:0; 
-    background:black; 
-    overflow:hidden; 
-    color: white; 
-    font-family: 'Canterbury', sans-serif; 
-  }
-  canvas { display:block; background:black; }
+body {
+  background:black;
+  overflow:hidden;
+  color:white;
+  font-family:'Canterbury', sans-serif;
+  margin:0;
+  padding:0;
+}
 
-  @font-face {
-    font-family: 'Canterbury';
-    src: url('Canterbury.ttf') format('truetype');
-    font-weight: normal;
-    font-style: normal;
-  }
+/* Canvas setup */
+canvas {
+  display:block;
+  background:black;
+  filter: brightness(1.2) contrast(1.4) blur(0.5px);
+}
 
-  /* Date style */
-  #date {
-    position: absolute;
-    top: 0px; 
-    width: 100%;
-    text-align: center;
-    font-size: 40px;
-    color: white;
-    text-shadow: 2px 2px 8px black;
-    pointer-events: none; 
-    font-family: 'Canterbury', sans-serif;
-  }
+/* Font */
+@font-face {
+  font-family:'Canterbury';
+  src:url('Canterbury.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
 
-  /* Title style */
-  #title {
-    position: absolute;
-    top: 60px; 
-    width: 100%;
-    text-align: center;
-    font-size: 60px;
-    color: white;
-    text-shadow: 2px 2px 8px black;
-    pointer-events: none; 
-    font-family: 'Canterbury', sans-serif;
-  }
+/* Date style */
+#date {
+  position:absolute;
+  top:0px;
+  width:100%;
+  text-align:center;
+  font-size:40px;
+  color:white;
+  pointer-events:none;
+  font-family:'Canterbury', sans-serif;
+  z-index:2000;
+  text-shadow:
+    0 0 2px #fff,
+    0 0 4px #fff,
+    0 0 6px #fff,
+    0 0 8px #ff00ff,
+    0 0 10px #00ffff;
+  animation: textFlicker 0.15s infinite;
+}
 
-  /* Play button style */
-  #playButton {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    padding: 20px 40px;
-    font-size: 30px;
-    cursor: pointer;
-    border: 2px solid white;
-    background: rgba(0,0,0,0.7);
-    color: white;
-    border-radius: 10px;
-    z-index: 10;
-  }
+/* Play button style */
+#playButton {
+  position:absolute;
+  top:50%;
+  left:50%;
+  transform:translate(-50%, -50%);
+  padding:20px 40px;
+  font-size:30px;
+  cursor:pointer;
+  border:2px solid white;
+  background: rgba(0,0,0,0.7);
+  color:white;
+  border-radius:10px;
+  z-index:2000;
+  text-shadow:
+    0 0 2px #fff,
+    0 0 4px #fff,
+    0 0 6px #fff,
+    0 0 8px #ff00ff,
+    0 0 10px #00ffff;
+  animation: textFlicker 0.15s infinite;
+}
+
+/* Footer */
 #footer {
-  position: absolute;
-  bottom: 10px;
-  width: 100%;
-  text-align: center;
-  font-size: 50px;  /* make this very large */
-  color: white;
-  text-shadow: 2px 2px 8px black; /* stronger shadow for readability */
-  pointer-events: none;
-  font-family: 'Canterbury', sans-serif;
+  position:absolute;
+  bottom:50px;
+  left:50%;
+  transform:translateX(-50%);
+  max-width:90%;
+  text-align:center;
+  color:white;
+  pointer-events:none;
+  font-family:'Canterbury', sans-serif;
+  word-wrap:break-word;
+  z-index:2000;
+  text-shadow:
+    0 0 1px #fff,
+    0 0 2px #fff,
+    0 0 3px #fff,
+    0 0 4px #ff00ff,
+    0 0 5px #00ffff;
+  animation: textFlicker 0.15s infinite;
 }
 
 #linktree {
-  display: block;
-  margin-top: 10px;
-  font-size: 40px;  /* bigger link size to match footer */
-  text-decoration: underline;
-  cursor: pointer;
-  pointer-events: auto;
-  color: white;
+  display:block;
+  margin-top:10px;
+  font-size:40px;
+  text-decoration:underline;
+  cursor:pointer;
+  pointer-events:auto;
+  color:white;
+}
+
+/* Text flicker animation */
+@keyframes textFlicker {
+  0%, 100% { opacity:1; }
+  25% { opacity:0.95; }
+  50% { opacity:0.9; }
+  75% { opacity:0.97; }
+}
+
+/* CRT overlay for canvas */
+#crt-overlay {
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  pointer-events:none;
+  z-index:1500; /* BELOW text */
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(0,0,0,0.15),
+    rgba(0,0,0,0.15) 2px,
+    transparent 2px,
+    transparent 4px
+  );
+  background-size:100% 4px;
+  animation: crtScroll 0.2s infinite linear, crtFlicker 0.1s infinite;
+}
+
+/* Scanline scroll */
+@keyframes crtScroll {
+  0% { background-position:0 0; }
+  100% { background-position:0 4px; }
+}
+
+/* Scanline flicker */
+@keyframes crtFlicker {
+  0%,100% { opacity:0.6; }
+  50% { opacity:0.7; }
 }
 </style>
 </head>
 <body>
 
-<!-- Date and Title -->
-<div id="date">must be bad luck that the best friend that i know left me waiting and
- i'll wait until i grow old once they come back then i won't be cold now my new dad says 
-that i can't go all 'cause he found me tied to a poll now i'm nervous everytime that i'm left alone
-could get bad luck and be waiting again in the snow once they come back then i won't be cold now my new dad says that 
-i can't go all 'cause he found me tied to a poll
+<!-- CRT overlay -->
+<div id="crt-overlay"></div>
+
+<!-- Date and Linktree -->
+<div id="date"> 
+  Casanova Frankenstein Jr - Argos Waiting - 03/13/26 
+  <a id="linktree" href="https://linktr.ee/casanovafrankensteinjr" target="_blank">presave</a> 
 </div>
-<!--<div id="title">Casanova Frankenstein Jr.</div>-->
 
 <!-- Play button -->
-<div id="playButton">▶ Play Music</div>
+<div id="playButton">▶ listen</div>
 
+<!-- Canvas for bouncing logo -->
 <canvas id="dvd"></canvas>
 
+<!-- Footer text -->
 <div id="footer">
-  Casanova Frankenstein Jr - Argos Waiting
-  <a id="linktree" href="https://linktr.ee/casanovafrankensteinjr" target="_blank">listen here</a>
+  must be bad luck that the best friend that i know left me waiting and i'll wait until i grow old once they come back then i won't be cold now my new dad says that i can't go all 'cause he found me tied to a pole now i'm nervous everytime that i'm left alone could get bad luck and be waiting again in the snow once they come back then i won't be cold now my new dad says that i can't go all 'cause he found me tied to a pole
 </div>
 
 <!-- Background music -->
@@ -120,34 +181,35 @@ function resizeCanvas() {
 resizeCanvas();
 window.addEventListener('resize', resizeCanvas);
 
+// Logo image
 const img = new Image();
-img.src = 'cover.png'; 
-
+img.src = 'cover.png';
 let x = 50, y = 50;
 let dx = 2, dy = 4;
-
-const width = 500;  
-const height = 500; 
-
-let hue = 0;         
-let hueSpeed = 1;    
+const width = 500;
+const height = 500;
+let hue = 0;
+let hueSpeed = 1;
 
 img.onload = () => {
   function animate() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.clearRect(0,0,canvas.width,canvas.height);
 
-    // Force mobile browsers to apply filter
+    // Draw logo with hue rotation
     ctx.save();
     ctx.filter = `hue-rotate(${hue}deg)`;
-    ctx.drawImage(img, x, y, width, height);
+    ctx.drawImage(img,x,y,width,height);
     ctx.restore();
 
+    // Move logo
     x += dx;
     y += dy;
 
+    // Bounce off edges
     if(x < 0 || x + width > canvas.width) dx = -dx;
     if(y < 0 || y + height > canvas.height) dy = -dy;
 
+    // Increment hue
     hue = (hue + hueSpeed) % 360;
 
     requestAnimationFrame(animate);
@@ -158,13 +220,11 @@ img.onload = () => {
 // Play button functionality
 const audio = document.getElementById('background-music');
 const playButton = document.getElementById('playButton');
-
 playButton.addEventListener('click', () => {
   audio.play();
-  playButton.style.display = 'none'; // hide button after click
+  playButton.style.display='none';
 });
 </script>
 
 </body>
 </html>
- 
