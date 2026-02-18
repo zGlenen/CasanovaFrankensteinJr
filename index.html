@@ -31,8 +31,12 @@ canvas {
 /* Date style */
 #date {
   position:absolute;
-  top:0px;
-  width:100%;
+  top:0;
+  left: 0;
+right: 0;
+margin: 0 auto;
+width: 95%;
+
   text-align:center;
   font-size:40px;
   color:white;
@@ -111,18 +115,18 @@ canvas {
 }
 
 /* Mobile styles */
-@media (max-width: 760px) {
+@media (max-width: 768px) {
   #date {
     font-size: 100px; /* bigger text on mobile */
   }
 
   #footer {
-    font-size: 50px;
+    font-size: 50px !important;
 
   }
 
   #playButton {
-    font-size: 40px;
+    font-size: 80px;
     padding: 30px 50px;
   }
 
@@ -180,12 +184,12 @@ canvas {
 
 <!-- Date and Linktree -->
 <div id="date"> 
-  Casanova Frankenstein Jr - Argos Waiting - 03/13/26 
+  Casanova Frankenstein Jr Argos Waiting 03/13/26 
   <a id="linktree" href="https://linktr.ee/casanovafrankensteinjr" target="_blank">presave</a> 
 </div>
 
 <!-- Play button -->
-<div id="playButton">▶ listen</div>
+<div id="playButton">listen</div>
 
 <!-- Canvas for bouncing logo -->
 <canvas id="dvd"></canvas>
