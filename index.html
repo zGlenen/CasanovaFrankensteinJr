@@ -73,25 +73,32 @@ canvas {
 
 /* Footer */
 #footer {
-  position:absolute;
-  bottom:50px;
-  left:50%;
-  transform:translateX(-50%);
-  max-width:90%;
-  text-align:center;
-  color:white;
-  pointer-events:none;
-  font-family:'Canterbury', sans-serif;
-  word-wrap:break-word;
-  z-index:2000;
+  font-size: 30px;
+  line-height: 1.5;
+  position: absolute;
+  bottom: 50px;
+
+  width: 93%;          /* use width instead of max-width */
+  left: 50%;
+  transform: translateX(-50%);
+
+  text-align: center;
+  color: white;
+  pointer-events: none;
+  font-family: 'Canterbury', sans-serif;
+  word-wrap: break-word;
+  z-index: 2000;
+
   text-shadow:
     0 0 1px #fff,
     0 0 2px #fff,
     0 0 3px #fff,
     0 0 4px #ff00ff,
     0 0 5px #00ffff;
+
   animation: textFlicker 0.15s infinite;
 }
+
 
 #linktree {
   display:block;
@@ -102,6 +109,28 @@ canvas {
   pointer-events:auto;
   color:white;
 }
+
+/* Mobile styles */
+@media (max-width: 760px) {
+  #date {
+    font-size: 100px; /* bigger text on mobile */
+  }
+
+  #footer {
+    font-size: 50px;
+
+  }
+
+  #playButton {
+    font-size: 40px;
+    padding: 30px 50px;
+  }
+
+  #linktree {
+    font-size: 50px;
+  }
+}
+
 
 /* Text flicker animation */
 @keyframes textFlicker {
