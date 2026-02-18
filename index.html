@@ -1,265 +1,75 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Argos Waiting - Casanova Frankenstein Jr.</title>
-<style>
-body {
-  background:black;
-  overflow:hidden;
-  color:white;
-  font-family:'Canterbury', sans-serif;
-  margin:0;
-  padding:0;
-}
-
-/* Canvas setup */
-canvas {
-  display:block;
-  background:black;
-  filter: brightness(1.2) contrast(1.4) blur(0.5px);
-}
-
-/* Font */
-@font-face {
-  font-family:'Canterbury';
-  src:url('Canterbury.ttf') format('truetype');
-  font-weight: normal;
-  font-style: normal;
-}
-
-/* Date style */
-#date {
-  position:absolute;
-  top:0;
-  left: 0;
-right: 0;
-margin: 0 auto;
-width: 95%;
-
-  text-align:center;
-  font-size:40px;
-  color:white;
-  pointer-events:none;
-  font-family:'Canterbury', sans-serif;
-  z-index:2000;
-  text-shadow:
-    0 0 2px #fff,
-    0 0 4px #fff,
-    0 0 6px #fff,
-    0 0 8px #ff00ff,
-    0 0 10px #00ffff;
-  animation: textFlicker 0.15s infinite;
-}
-
-/* Play button style */
-#playButton {
-  position:absolute;
-  top:50%;
-  left:50%;
-  transform:translate(-50%, -50%);
-  padding:20px 40px;
-  font-size:30px;
-  cursor:pointer;
-  border:2px solid white;
-  background: rgba(0,0,0,0.7);
-  color:white;
-  border-radius:10px;
-  z-index:2000;
-  text-shadow:
-    0 0 2px #fff,
-    0 0 4px #fff,
-    0 0 6px #fff,
-    0 0 8px #ff00ff,
-    0 0 10px #00ffff;
-  animation: textFlicker 0.15s infinite;
-}
-
-/* Footer */
-#footer {
-  font-size: 30px;
-  line-height: 1.5;
-  position: absolute;
-  bottom: 50px;
-
-  width: 93%;          /* use width instead of max-width */
-  left: 50%;
-  transform: translateX(-50%);
-
-  text-align: center;
-  color: white;
-  pointer-events: none;
-  font-family: 'Canterbury', sans-serif;
-  word-wrap: break-word;
-  z-index: 2000;
-
-  text-shadow:
-    0 0 1px #fff,
-    0 0 2px #fff,
-    0 0 3px #fff,
-    0 0 4px #ff00ff,
-    0 0 5px #00ffff;
-
-  animation: textFlicker 0.15s infinite;
-}
-
-
-#linktree {
-  display:block;
-  margin-top:10px;
-  font-size:40px;
-  text-decoration:underline;
-  cursor:pointer;
-  pointer-events:auto;
-  color:white;
-}
-
-/* Mobile styles */
-@media (max-width: 769px) {
-  #date {
-    font-size: 40px; /* bigger text on mobile */
-  }
-
-  #footer {
-    font-size: 15px !important;
-
-  }
-
-  #playButton {
-    font-size: 30px;
-    padding: 30px 50px;
-  }
-
-  #linktree {
-    font-size: 40px;
-  }
-}
-
-
-/* Text flicker animation */
-@keyframes textFlicker {
-  0%, 100% { opacity:1; }
-  25% { opacity:0.95; }
-  50% { opacity:0.9; }
-  75% { opacity:0.97; }
-}
-
-/* CRT overlay for canvas */
-#crt-overlay {
-  position:fixed;
-  top:0;
-  left:0;
-  width:100%;
-  height:100%;
-  pointer-events:none;
-  z-index:1500; /* BELOW text */
-  background: repeating-linear-gradient(
-    to bottom,
-    rgba(0,0,0,0.15),
-    rgba(0,0,0,0.15) 2px,
-    transparent 2px,
-    transparent 4px
-  );
-  background-size:100% 4px;
-  animation: crtScroll 0.2s infinite linear, crtFlicker 0.1s infinite;
-}
-
-/* Scanline scroll */
-@keyframes crtScroll {
-  0% { background-position:0 0; }
-  100% { background-position:0 4px; }
-}
-
-/* Scanline flicker */
-@keyframes crtFlicker {
-  0%,100% { opacity:0.6; }
-  50% { opacity:0.7; }
-}
-</style>
-</head>
-<body>
-
-<!-- CRT overlay -->
-<div id="crt-overlay"></div>
-
-<!-- Date and Linktree -->
-<div id="date"> 
-  Casanova Frankenstein Jr Argos Waiting 03/13/26 
-  <a id="linktree" href="https://linktr.ee/casanovafrankensteinjr" target="_blank">presave</a> 
-</div>
-
-<!-- Play button -->
-<div id="playButton">listen</div>
-
-<!-- Canvas for bouncing logo -->
-<canvas id="dvd"></canvas>
-
-<!-- Footer text -->
-<div id="footer">
-  must be bad luck that the best friend that i know left me waiting and i'll wait until i grow old once they come back then i won't be cold now my new dad says that i can't go all 'cause he found me tied to a pole now i'm nervous everytime that i'm left alone could get bad luck and be waiting again in the snow once they come back then i won't be cold now my new dad says that i can't go all 'cause he found me tied to a pole
-</div>
-
-<!-- Background music -->
-<audio id="background-music" src="song.mp3" loop></audio>
-
 <script>
 // Canvas setup
 const canvas = document.getElementById('dvd');
 const ctx = canvas.getContext('2d');
 
 function resizeCanvas() {
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
+  const dpr = window.devicePixelRatio || 1;
+
+  canvas.width = window.innerWidth * dpr;
+  canvas.height = window.innerHeight * dpr;
+
+  canvas.style.width = window.innerWidth + "px";
+  canvas.style.height = window.innerHeight + "px";
+
+  ctx.setTransform(1, 0, 0, 1, 0, 0); // reset transform
+  ctx.scale(dpr, dpr);
 }
+
 resizeCanvas();
 window.addEventListener('resize', resizeCanvas);
 
 // Logo image
 const img = new Image();
 img.src = 'cover.png';
+
 let x = 50, y = 50;
-let dx = 2, dy = 4;
+let dx = 1.5, dy = 2.5;   // slightly smoother movement
 const width = 200;
 const height = 200;
+
 let hue = 0;
-let hueSpeed = 1;
+let hueSpeed = 0.3;      // slower, more analog feel
 
 img.onload = () => {
   function animate() {
-    ctx.clearRect(0,0,canvas.width,canvas.height);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Draw logo with hue rotation
-    ctx.save();
-    ctx.filter = `hue-rotate(${hue}deg)`;
-    ctx.drawImage(img,x,y,width,height);
-    ctx.restore();
+    // Draw logo
+    ctx.drawImage(img, x, y, width, height);
+
+    // Apply hue rotation to entire canvas (iOS safe)
+    canvas.style.filter = `
+      brightness(1.2)
+      contrast(1.4)
+      blur(0.5px)
+      hue-rotate(${hue}deg)
+    `;
 
     // Move logo
     x += dx;
     y += dy;
 
     // Bounce off edges
-    if(x < 0 || x + width > canvas.width) dx = -dx;
-    if(y < 0 || y + height > canvas.height) dy = -dy;
+    if (x < 0 || x + width > window.innerWidth) dx = -dx;
+    if (y < 0 || y + height > window.innerHeight) dy = -dy;
 
-    // Increment hue
-    hue = (hue + hueSpeed) % 360;
+    // Smooth hue cycle
+    hue += hueSpeed;
+    if (hue >= 360) hue = 0;
 
     requestAnimationFrame(animate);
   }
+
   animate();
 };
 
 // Play button functionality
 const audio = document.getElementById('background-music');
 const playButton = document.getElementById('playButton');
+
 playButton.addEventListener('click', () => {
   audio.play();
-  playButton.style.display='none';
+  playButton.style.display = 'none';
 });
 </script>
-
-</body>
-</html>
