@@ -61,28 +61,27 @@
     border-radius: 10px;
     z-index: 10;
   }
-  #footer {
-    position: absolute;
-    bottom: 10px;
-    width: 100%;
-    text-align: center;
-    font-size: 20px;
-    color: white;
-    text-shadow: 1px 1px 4px black;
-    pointer-events: none;
-    font-family: 'Canterbury', sans-serif;
-  }
+#footer {
+  position: absolute;
+  bottom: 10px;
+  width: 100%;
+  text-align: center;
+  font-size: 50px;  /* make this very large */
+  color: white;
+  text-shadow: 2px 2px 8px black; /* stronger shadow for readability */
+  pointer-events: none;
+  font-family: 'Canterbury', sans-serif;
+}
 
-  /* Placeholder for Linktree link */
-  #linktree {
-    display: block;
-    margin-top: 5px;
-    font-size: 18px;
-    text-decoration: underline;
-    cursor: pointer;
-    pointer-events: auto; /* allow clicks */
-    color: white;
-  }
+#linktree {
+  display: block;
+  margin-top: 10px;
+  font-size: 40px;  /* bigger link size to match footer */
+  text-decoration: underline;
+  cursor: pointer;
+  pointer-events: auto;
+  color: white;
+}
 </style>
 </head>
 <body>
@@ -164,3 +163,4 @@ playButton.addEventListener('click', () => {
 
 </body>
 </html>
+
