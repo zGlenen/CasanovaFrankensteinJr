@@ -135,8 +135,12 @@ let hueSpeed = 1;
 img.onload = () => {
   function animate() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Force mobile browsers to apply filter
+    ctx.save();
     ctx.filter = `hue-rotate(${hue}deg)`;
     ctx.drawImage(img, x, y, width, height);
+    ctx.restore();
 
     x += dx;
     y += dy;
@@ -163,4 +167,4 @@ playButton.addEventListener('click', () => {
 
 </body>
 </html>
-
+ 
