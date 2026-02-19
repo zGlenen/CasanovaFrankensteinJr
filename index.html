@@ -161,6 +161,38 @@ canvas {
   animation:textFlicker 0.15s infinite;
 }
 
+#screen-flicker {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1600; /* below scanlines, below text */
+
+  background: #888;
+  opacity: 0;
+}
+
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1700;
+  background: radial-gradient(circle at center, transparent 60%, black 100%);
+}
+
+
+#noise {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1700;
+  opacity: 0.03;
+  background-image: url("https://grainy-gradients.vercel.app/noise.svg");
+}
+
 /* Flicker animation */
 @keyframes textFlicker {
   0%,100% { opacity:1; }
@@ -169,7 +201,9 @@ canvas {
 </style>
 </head>
 <body>
-
+<div id="screen-flicker"></div>
+<div id="crt-overlay"></div>
+<div id="noise"></div>
 <div id="date">
 Casanova Frankenstein Jr <br>
 Argos Waiting <br>
@@ -181,41 +215,95 @@ Argos Waiting <br>
 <canvas id="dvd"></canvas>
 
 <div id="footer">
-Why........................ "all because he found me, tied to a pole" <br>
+Some time ago......... "he found me, tied to a pole" <br>
 for vincent & henry
 </div>
 
 <audio id="background-music" src="song.mp3" loop></audio>
 <script>
-// Background bouncing logo
-const bgCanvas = document.getElementById('dvd');
-const bgCtx = bgCanvas.getContext('2d');
+// Canvas setup
+const canvas = document.getElementById('dvd');
+const ctx = canvas.getContext('2d');
 
 function resizeCanvas() {
-  bgCanvas.width = window.innerWidth;
-  bgCanvas.height = window.innerHeight;
+  const dpr = window.devicePixelRatio || 1;
+
+  canvas.width = window.innerWidth * dpr;
+  canvas.height = window.innerHeight * dpr;
+
+  canvas.style.width = window.innerWidth + "px";
+  canvas.style.height = window.innerHeight + "px";
+
+  ctx.setTransform(1, 0, 0, 1, 0, 0); // reset transform
+  ctx.scale(dpr, dpr);
 }
+
 resizeCanvas();
 window.addEventListener('resize', resizeCanvas);
 
-const bgImg = new Image();
-bgImg.src = 'cover.png';
+// Logo image
+const img = new Image();
+img.src = 'cover.png';
 
-let x=50,y=50,dx=1.5,dy=2.5,width=200,height=200;
+let x = 50, y = 50;
+let dx = 1.5, dy = 2.5;   // slightly smoother movement
+const width = 200;
+const height = 200;
 
-bgImg.onload = () => {
-  function animate(){
-    bgCtx.clearRect(0,0,bgCanvas.width,bgCanvas.height);
-    bgCtx.drawImage(bgImg,x,y,width,height);
-    x+=dx; y+=dy;
-    if(x<0||x+width>bgCanvas.width)dx=-dx;
-    if(y<0||y+height>bgCanvas.height)dy=-dy;
+let hue = 0;
+let hueSpeed = 0.3;      // slower, more analog feel
+
+img.onload = () => {
+  function animate() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Draw logo
+    ctx.drawImage(img, x, y, width, height);
+
+    // Apply hue rotation to entire canvas (iOS safe)
+    canvas.style.filter = `
+      brightness(1.2)
+      contrast(1.4)
+      blur(0.5px)
+      hue-rotate(${hue}deg)
+    `;
+
+    // Move logo
+    x += dx;
+    y += dy;
+
+    // Bounce off edges
+    if (x < 0 || x + width > window.innerWidth) dx = -dx;
+    if (y < 0 || y + height > window.innerHeight) dy = -dy;
+
+    // Smooth hue cycle
+    hue += hueSpeed;
+    if (hue >= 360) hue = 0;
+
+if (Math.random() > 0.99) {
+  ctx.drawImage(img, x + 10, y, width, height);
+}
+
+if (Math.random() > 0.99) {
+  canvas.style.filter += " brightness(0.2)";
+  setTimeout(() => {
+    canvas.style.filter =
+      "brightness(1.2) contrast(1.4) blur(0.5px) hue-rotate(" + hue + "deg)";
+  }, 120);
+}
+
     requestAnimationFrame(animate);
+
+if (Math.random() > 0.995) {
+  ctx.fillStyle = "rgba(255,255,255,0.15)";
+  const glitchY = Math.random() * window.innerHeight;
+  ctx.fillRect(0, glitchY, window.innerWidth, 2);
+}
   }
+
   animate();
 };
 
-// Play button
 const audio = document.getElementById('background-music');
 const playButton = document.getElementById('playButton');
 
@@ -229,127 +317,144 @@ playButton.addEventListener('click',()=>{
 
 <script>
 function startDogGame(){
-  const canvas=document.getElementById("dogGame");
-  const ctx=canvas.getContext("2d");
-  const restartBtn=document.getElementById("restartBtn");
-  const presaveBtn=document.getElementById("presaveBtn");
+  const canvas = document.getElementById("dogGame");
+  const ctx = canvas.getContext("2d");
+  const restartBtn = document.getElementById("restartBtn");
+  const presaveBtn = document.getElementById("presaveBtn");
 
-  const dogImg = new Image();
-  dogImg.src = "dog.png";
+  // Load images
+  const dogImg = new Image(); dogImg.src = "dog.png";
+  const mailImg = new Image(); mailImg.src = "mail.png";
+  const stopImg = new Image(); stopImg.src = "stop.png";
+  const fireImg = new Image(); fireImg.src = "fire.png";
 
-  const mailImg = new Image();
-  mailImg.src = "mail.png";
+  const obstacleImgs = [mailImg, stopImg, fireImg];
 
-  let dog,obstacles,score,gameOver,interval;
+  let dog, obstacles, score, gameOver;
 
-  const groundY = 180;   // ground line
-  const dogTargetHeight = 55;  // NEW bigger dog size
-
-  dogImg.onload = function(){
-
-    // maintain aspect ratio
-    const aspectRatio = dogImg.naturalWidth / dogImg.naturalHeight;
-    const dogWidth = dogTargetHeight * aspectRatio;
+  dogImg.onload = () => {
+    // Maintain aspect ratio for dog
+    const dogTargetHeight = 55;
+    const dogAspect = dogImg.naturalWidth / dogImg.naturalHeight;
+    const dogWidth = dogTargetHeight * dogAspect;
     const dogHeight = dogTargetHeight;
 
     function init(){
-      dog={
-        x:50,
-        y:groundY - dogHeight,
-        width:dogWidth,
-        height:dogHeight,
-        vy:0,
-        gravity:0.6,
-        jump:-14,
-        grounded:true
+      dog = {
+        x: 50,
+        y: 180 - dogHeight,
+        width: dogWidth,
+        height: dogHeight,
+        vy: 0,
+        gravity: 0.6,
+        jump: -14,
+        grounded: true
       };
 
-      obstacles=[];
-      score=0;
-      gameOver=false;
+      obstacles = [];
+      score = 0;
+      gameOver = false;
 
-      restartBtn.style.display="none";
-      presaveBtn.style.display="none";
+      restartBtn.style.display = "none";
+      presaveBtn.style.display = "none";
 
-      clearInterval(interval);
-      interval=setInterval(spawn,1500);
+      // Start dynamic obstacle spawning
+      spawnNextObstacle();
+
       update();
     }
 
+    // -----------------------------
+    // Dynamic random spawning
+    // -----------------------------
+    function spawnNextObstacle(){
+      if(gameOver) return;
+
+      spawn(); // spawn a new obstacle
+
+      // Random interval between 800ms and 1800ms
+      const nextTime = 800 + Math.random() * 1000;
+      setTimeout(spawnNextObstacle, nextTime);
+    }
+
     function spawn(){
+      const img = obstacleImgs[Math.floor(Math.random() * obstacleImgs.length)];
+      const obsTargetHeight = 50;
+      const aspect = img.naturalWidth / img.naturalHeight;
+      const obsWidth = obsTargetHeight * aspect;
+      const obsHeight = obsTargetHeight;
+
       obstacles.push({
-        x:canvas.width,
-        width:30,
-        height:50,
-        y:groundY - 50
+        x: canvas.width,
+        y: 180 - obsHeight,
+        width: obsWidth,
+        height: obsHeight,
+        img: img
       });
     }
 
     function update(){
-      if(gameOver)return;
+      if(gameOver) return;
       ctx.clearRect(0,0,canvas.width,canvas.height);
 
       // Ground
       ctx.fillStyle="#444";
-      ctx.fillRect(0,groundY,canvas.width,5);
+      ctx.fillRect(0,180,canvas.width,5);
 
-      // Physics
-      dog.vy+=dog.gravity;
-      dog.y+=dog.vy;
-
-      if(dog.y >= groundY - dog.height){
-        dog.y = groundY - dog.height;
+      // Dog physics
+      dog.vy += dog.gravity;
+      dog.y += dog.vy;
+      if(dog.y >= 180 - dog.height){
+        dog.y = 180 - dog.height;
         dog.vy = 0;
         dog.grounded = true;
       }
 
-      // Draw dog (scaled naturally)
-      ctx.drawImage(dogImg,dog.x,dog.y,dog.width,dog.height);
+      // Draw dog
+      ctx.drawImage(dogImg, dog.x, dog.y, dog.width, dog.height);
 
+      // Obstacles
       obstacles.forEach((o,i)=>{
-        o.x-=4;
+        o.x -= 4;
+        ctx.drawImage(o.img, o.x, o.y, o.width, o.height);
 
-        ctx.drawImage(mailImg,o.x,o.y,o.width,o.height);
-
+        // Collision
         if(
-          dog.x<o.x+o.width &&
-          dog.x+dog.width>o.x &&
-          dog.y<o.y+o.height &&
-          dog.y+dog.height>o.y
+          dog.x < o.x + o.width &&
+          dog.x + dog.width > o.x &&
+          dog.y < o.y + o.height &&
+          dog.y + dog.height > o.y
         ){
-          gameOver=true;
-          clearInterval(interval);
-
-          ctx.fillStyle="white";
-          ctx.font="20px monospace";
-          ctx.fillText("GAME OVER",170,100);
-
-          restartBtn.style.display="inline-block";
-          presaveBtn.style.display="inline-block";
+          gameOver = true;
+          ctx.fillStyle = "white";
+          ctx.font = "20px monospace";
+          ctx.fillText("GAME OVER", 170, 100);
+          restartBtn.style.display = "inline-block";
+          presaveBtn.style.display = "inline-block";
         }
 
-        if(o.x+o.width<0){
+        if(o.x + o.width < 0){
           obstacles.splice(i,1);
           score++;
         }
       });
 
-      ctx.fillStyle="white";
-      ctx.font="16px monospace";
-      ctx.fillText("Score: "+score,10,20);
+      ctx.fillStyle = "white";
+      ctx.font = "16px monospace";
+      ctx.fillText("Score: " + score, 10, 20);
 
       requestAnimationFrame(update);
     }
 
-    document.addEventListener("keydown",e=>{
-      if(e.code==="Space" && dog.grounded && !gameOver){
-        dog.vy=dog.jump;
-        dog.grounded=false;
+    document.addEventListener("keydown", e=>{
+      if(e.code === "Space" && dog.grounded && !gameOver){
+        dog.vy = dog.jump;
+        dog.grounded = false;
       }
     });
 
-    restartBtn.onclick=()=>init();
-    presaveBtn.onclick=()=>window.open("https://linktr.ee/casanovafrankensteinjr","_blank");
+    restartBtn.onclick = () => init();
+    presaveBtn.onclick = () => window.open("https://linktr.ee/casanovafrankensteinjr","_blank");
 
     init();
   };
@@ -358,9 +463,10 @@ function startDogGame(){
 
 
 
+
 <div id="gameOverlay">
   <div id="gameWindow">
-    <div id="gameTitle">argos running <br> !escape from the pole!</div>
+    <div id="gameTitle">Argos Running <br> <i> Escape From The Pole </i></div>
     <canvas id="dogGame" width="500" height="200"></canvas>
     <div id="gameButtons">
       <button id="restartBtn" style="display:none;">try again</button>
