@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+
 <title>Argos Waiting - Casanova Frankenstein Jr.</title>
 <style>
 body {
@@ -15,35 +16,98 @@ body {
   padding:0;
 }
 
+/* ============================= */
+/* DOG GAME WINDOW */
+/* ============================= */
+
+#gameOverlay {
+  position: fixed;
+  inset: 0;
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 5000;
+}
+
+#gameWindow {
+  width: 520px;
+  background: rgba(0,0,0,0.9);
+  border: 2px solid white;
+  border-radius: 10px;
+  box-shadow: 0 0 25px rgba(255,255,255,0.4);
+  padding: 15px;
+  text-align: center;
+}
+
+#gameTitle {
+  font-size: 20px;
+  margin-bottom: 10px;
+  text-shadow:
+    0 0 4px #fff,
+    0 0 8px #ff00ff,
+    0 0 12px #00ffff;
+}
+
+#dogGame {
+  background: black;
+  border: 2px solid white;
+  display: block;
+  margin: 0 auto;
+}
+
+#gameButtons {
+  margin-top: 15px;
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+}
+
+#restartBtn,
+#presaveBtn {
+  padding: 10px 25px;
+  font-size: 16px;
+  cursor: pointer;
+  background: black;
+  color: white;
+  border: 2px solid white;
+  border-radius: 6px;
+  font-family: monospace;
+  text-shadow:
+    0 0 4px #fff,
+    0 0 8px #ff00ff,
+    0 0 12px #00ffff;
+}
+
+#restartBtn:hover,
+#presaveBtn:hover {
+  background: white;
+  color: black;
+}
+
 /* Canvas setup */
 canvas {
   display:block;
   background:black;
-
 }
 
 /* Font */
 @font-face {
   font-family:'Canterbury';
   src:url('Canterbury.ttf') format('truetype');
-  font-weight: normal;
-  font-style: normal;
 }
 
 /* Date style */
 #date {
   position:absolute;
   top:0;
-  left: 0;
-right: 0;
-margin: 0 auto;
-width: 95%;
-
+  left:0;
+  right:0;
+  margin:0 auto;
+  width:95%;
   text-align:center;
   font-size:40px;
   color:white;
   pointer-events:none;
-  font-family:'Canterbury', sans-serif;
   z-index:2000;
   text-shadow:
     0 0 2px #fff,
@@ -51,10 +115,10 @@ width: 95%;
     0 0 6px #fff,
     0 0 8px #ff00ff,
     0 0 10px #00ffff;
-  animation: textFlicker 0.15s infinite;
+  animation:textFlicker 0.15s infinite;
 }
 
-/* Play button style */
+/* Play button */
 #playButton {
   position:absolute;
   top:50%;
@@ -64,7 +128,7 @@ width: 95%;
   font-size:30px;
   cursor:pointer;
   border:2px solid white;
-  background: rgba(0,0,0,0.7);
+  background:rgba(0,0,0,0.7);
   color:white;
   border-radius:10px;
   z-index:2000;
@@ -74,285 +138,236 @@ width: 95%;
     0 0 6px #fff,
     0 0 8px #ff00ff,
     0 0 10px #00ffff;
-  animation: textFlicker 0.15s infinite;
+  animation:textFlicker 0.15s infinite;
 }
 
 /* Footer */
 #footer {
-  font-size: 30px;
-  line-height: 1.5;
-  position: absolute;
-  bottom: 50px;
-
-  width: 93%;          /* use width instead of max-width */
-  left: 50%;
-  transform: translateX(-50%);
-
-  text-align: center;
-  color: white;
-  pointer-events: none;
-  font-family: 'Canterbury', sans-serif;
-  word-wrap: break-word;
-  z-index: 2000;
-
+  font-size:30px;
+  position:absolute;
+  bottom:50px;
+  width:93%;
+  left:50%;
+  transform:translateX(-50%);
+  text-align:center;
+  pointer-events:none;
+  z-index:2000;
   text-shadow:
     0 0 1px #fff,
     0 0 2px #fff,
     0 0 3px #fff,
     0 0 4px #ff00ff,
     0 0 5px #00ffff;
-
-  animation: textFlicker 0.15s infinite;
+  animation:textFlicker 0.15s infinite;
 }
 
-
-#linktree {
-  display:block;
-  margin-top:10px;
-  font-size:40px;
-  text-decoration:underline;
-  cursor:pointer;
-  pointer-events:auto;
-  color:white;
-}
-
-/* Mobile styles */
-@media (max-width: 769px) {
-  #date {
-    font-size: 40px; /* bigger text on mobile */
-  }
-
-  #footer {
-    font-size: 15px !important;
-
-  }
-
-  #playButton {
-    font-size: 30px;
-    padding: 30px 50px;
-  }
-
-  #linktree {
-    font-size: 40px;
-  }
-}
-
-
-/* Text flicker animation */
+/* Flicker animation */
 @keyframes textFlicker {
-  0%, 100% { opacity:1; }
-  25% { opacity:0.95; }
+  0%,100% { opacity:1; }
   50% { opacity:0.9; }
-  75% { opacity:0.97; }
-}
-
-/* CRT overlay for canvas */
-#crt-overlay {
-  position:fixed;
-  top:0;
-  left:0;
-  width:100%;
-  height:100%;
-  pointer-events:none;
-  z-index:1500; /* BELOW text */
-  background: repeating-linear-gradient(
-    to bottom,
-    rgba(0,0,0,0.15),
-    rgba(0,0,0,0.15) 2px,
-    transparent 2px,
-    transparent 4px
-  );
-  background-size:100% 4px;
-  animation: crtScroll 0.2s infinite linear, crtFlicker 0.1s infinite;
-}
-
-/* Whole screen power flicker */
-#screen-flicker {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  z-index: 1600; /* below scanlines, below text */
-
-  background: #888;
-  opacity: 0;
-}
-
-body::after {
-  content: "";
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 1700;
-  background: radial-gradient(circle at center, transparent 60%, black 100%);
-}
-
-
-#noise {
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 1700;
-  opacity: 0.03;
-  background-image: url("https://grainy-gradients.vercel.app/noise.svg");
-}
-
-
-/* Scanline scroll */
-@keyframes crtScroll {
-  0% { background-position:0 0; }
-  100% { background-position:0 4px; }
-}
-
-/* Scanline flicker */
-@keyframes crtFlicker {
-  0%,100% { opacity:0.6; }
-  50% { opacity:0.7; }
 }
 </style>
 </head>
 <body>
 
-<div id="screen-flicker"></div>
-<div id="crt-overlay"></div>
-<div id="noise"></div>
-
-
-<!-- Date and Linktree -->
-<div id="date"> 
-Casanova Frankenstein Jr <br> Argos Waiting <br> 03/13/26 
-  <a id="linktree" href="https://linktr.ee/casanovafrankensteinjr" target="_blank">pre save here</a> 
+<div id="date">
+Casanova Frankenstein Jr <br>
+Argos Waiting <br>
+03/13/26
 </div>
 
-<!-- Play button -->
 <div id="playButton">listen</div>
 
-<!-- Canvas for bouncing logo -->
 <canvas id="dvd"></canvas>
 
-<!-- Footer text -->
 <div id="footer">
-	WHY........................ "all because he found me, tied to a pole" <br> for vincent & henry
+Why........................ "all because he found me, tied to a pole" <br>
+for vincent & henry
 </div>
 
-<!-- Background music -->
 <audio id="background-music" src="song.mp3" loop></audio>
-
 <script>
-// Canvas setup
-const canvas = document.getElementById('dvd');
-const ctx = canvas.getContext('2d');
+// Background bouncing logo
+const bgCanvas = document.getElementById('dvd');
+const bgCtx = bgCanvas.getContext('2d');
 
 function resizeCanvas() {
-  const dpr = window.devicePixelRatio || 1;
-
-  canvas.width = window.innerWidth * dpr;
-  canvas.height = window.innerHeight * dpr;
-
-  canvas.style.width = window.innerWidth + "px";
-  canvas.style.height = window.innerHeight + "px";
-
-  ctx.setTransform(1, 0, 0, 1, 0, 0); // reset transform
-  ctx.scale(dpr, dpr);
+  bgCanvas.width = window.innerWidth;
+  bgCanvas.height = window.innerHeight;
 }
-
 resizeCanvas();
 window.addEventListener('resize', resizeCanvas);
 
-// Logo image
-const img = new Image();
-img.src = 'cover.png';
+const bgImg = new Image();
+bgImg.src = 'cover.png';
 
-let x = 50, y = 50;
-let dx = 1.5, dy = 2.5;   // slightly smoother movement
-const width = 200;
-const height = 200;
+let x=50,y=50,dx=1.5,dy=2.5,width=200,height=200;
 
-let hue = 0;
-let hueSpeed = 0.3;      // slower, more analog feel
-
-img.onload = () => {
-  function animate() {
-  // Clear using CSS pixel dimensions, not scaled pixel dimensions
-  ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
-
-  // Draw logo
-  ctx.drawImage(img, x, y, width, height);
-
-  // Apply hue rotation safely
-  canvas.style.filter =
-    "brightness(1.2) contrast(1.4) blur(0.5px) hue-rotate(" + hue + "deg)";
-
-  // Move logo
-  x += dx;
-  y += dy;
-
-  // Bounce using CSS pixel dimensions
-  if (x < 0 || x + width > window.innerWidth) dx = -dx;
-  if (y < 0 || y + height > window.innerHeight) dy = -dy;
-
-  // Smooth hue cycle
-  hue += hueSpeed;
-  if (hue >= 360) hue = 0;
-
-if (Math.random() > 0.99) {
-  ctx.drawImage(img, x + 10, y, width, height);
-}
-
-if (Math.random() > 0.99) {
-  canvas.style.filter += " brightness(0.2)";
-  setTimeout(() => {
-    canvas.style.filter =
-      "brightness(1.2) contrast(1.4) blur(0.5px) hue-rotate(" + hue + "deg)";
-  }, 120);
-}
-
-
-  requestAnimationFrame(animate);
-if (Math.random() > 0.995) {
-  ctx.fillStyle = "rgba(255,255,255,0.15)";
-  const glitchY = Math.random() * window.innerHeight;
-  ctx.fillRect(0, glitchY, window.innerWidth, 2);
-}
-
-}
-
-
+bgImg.onload = () => {
+  function animate(){
+    bgCtx.clearRect(0,0,bgCanvas.width,bgCanvas.height);
+    bgCtx.drawImage(bgImg,x,y,width,height);
+    x+=dx; y+=dy;
+    if(x<0||x+width>bgCanvas.width)dx=-dx;
+    if(y<0||y+height>bgCanvas.height)dy=-dy;
+    requestAnimationFrame(animate);
+  }
   animate();
 };
 
-// Play button functionality
+// Play button
 const audio = document.getElementById('background-music');
 const playButton = document.getElementById('playButton');
 
-playButton.addEventListener('click', () => {
+playButton.addEventListener('click',()=>{
   audio.play();
-  playButton.style.display = 'none';
+  playButton.style.display='none';
+  document.getElementById("gameOverlay").style.display="flex";
+  startDogGame();
 });
-
-// Random CRT power flicker
-const flickerLayer = document.getElementById('screen-flicker');
-
-function randomFlicker() {
-  const intensity = Math.random() * 0.12; // subtle grey flash
-  flickerLayer.style.opacity = intensity;
-
-  setTimeout(() => {
-    flickerLayer.style.opacity = 0;
-  }, 40 + Math.random() * 60); // quick flash
-}
-
-// Random intervals (analog feeling)
-setInterval(() => {
-  if (Math.random() > 0.8) { // 30% chance each cycle
-    randomFlicker();
-  }
-}, 120);
-
 </script>
 
+<script>
+function startDogGame(){
+  const canvas=document.getElementById("dogGame");
+  const ctx=canvas.getContext("2d");
+  const restartBtn=document.getElementById("restartBtn");
+  const presaveBtn=document.getElementById("presaveBtn");
+
+  const dogImg = new Image();
+  dogImg.src = "dog.png";
+
+  const mailImg = new Image();
+  mailImg.src = "mail.png";
+
+  let dog,obstacles,score,gameOver,interval;
+
+  const groundY = 180;   // ground line
+  const dogTargetHeight = 55;  // NEW bigger dog size
+
+  dogImg.onload = function(){
+
+    // maintain aspect ratio
+    const aspectRatio = dogImg.naturalWidth / dogImg.naturalHeight;
+    const dogWidth = dogTargetHeight * aspectRatio;
+    const dogHeight = dogTargetHeight;
+
+    function init(){
+      dog={
+        x:50,
+        y:groundY - dogHeight,
+        width:dogWidth,
+        height:dogHeight,
+        vy:0,
+        gravity:0.6,
+        jump:-14,
+        grounded:true
+      };
+
+      obstacles=[];
+      score=0;
+      gameOver=false;
+
+      restartBtn.style.display="none";
+      presaveBtn.style.display="none";
+
+      clearInterval(interval);
+      interval=setInterval(spawn,1500);
+      update();
+    }
+
+    function spawn(){
+      obstacles.push({
+        x:canvas.width,
+        width:30,
+        height:50,
+        y:groundY - 50
+      });
+    }
+
+    function update(){
+      if(gameOver)return;
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+
+      // Ground
+      ctx.fillStyle="#444";
+      ctx.fillRect(0,groundY,canvas.width,5);
+
+      // Physics
+      dog.vy+=dog.gravity;
+      dog.y+=dog.vy;
+
+      if(dog.y >= groundY - dog.height){
+        dog.y = groundY - dog.height;
+        dog.vy = 0;
+        dog.grounded = true;
+      }
+
+      // Draw dog (scaled naturally)
+      ctx.drawImage(dogImg,dog.x,dog.y,dog.width,dog.height);
+
+      obstacles.forEach((o,i)=>{
+        o.x-=4;
+
+        ctx.drawImage(mailImg,o.x,o.y,o.width,o.height);
+
+        if(
+          dog.x<o.x+o.width &&
+          dog.x+dog.width>o.x &&
+          dog.y<o.y+o.height &&
+          dog.y+dog.height>o.y
+        ){
+          gameOver=true;
+          clearInterval(interval);
+
+          ctx.fillStyle="white";
+          ctx.font="20px monospace";
+          ctx.fillText("GAME OVER",170,100);
+
+          restartBtn.style.display="inline-block";
+          presaveBtn.style.display="inline-block";
+        }
+
+        if(o.x+o.width<0){
+          obstacles.splice(i,1);
+          score++;
+        }
+      });
+
+      ctx.fillStyle="white";
+      ctx.font="16px monospace";
+      ctx.fillText("Score: "+score,10,20);
+
+      requestAnimationFrame(update);
+    }
+
+    document.addEventListener("keydown",e=>{
+      if(e.code==="Space" && dog.grounded && !gameOver){
+        dog.vy=dog.jump;
+        dog.grounded=false;
+      }
+    });
+
+    restartBtn.onclick=()=>init();
+    presaveBtn.onclick=()=>window.open("https://linktr.ee/casanovafrankensteinjr","_blank");
+
+    init();
+  };
+}
+</script>
+
+
+
+<div id="gameOverlay">
+  <div id="gameWindow">
+    <div id="gameTitle">argos running <br> !escape from the pole!</div>
+    <canvas id="dogGame" width="500" height="200"></canvas>
+    <div id="gameButtons">
+      <button id="restartBtn" style="display:none;">try again</button>
+      <button id="presaveBtn" style="display:none;">pre-save the album</button>
+    </div>
+  </div>
+</div>
 
 </body>
 </html>
