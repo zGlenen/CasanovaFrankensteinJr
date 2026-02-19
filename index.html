@@ -215,8 +215,8 @@ Argos Waiting <br>
 <canvas id="dvd"></canvas>
 
 <div id="footer">
-Some time ago......... "he found me, tied to a pole" <br>
-for vincent & henry
+Some time ago......... "he found me, tied to a pole" <br>---------------------<br>
+<i>for vincent & henry</i>
 </div>
 
 <audio id="background-music" src="song.mp3" loop></audio>
@@ -331,6 +331,7 @@ function startDogGame(){
   const obstacleImgs = [mailImg, stopImg, fireImg];
 
   let dog, obstacles, score, gameOver;
+  let gameScale = 1; // for responsive scaling
 
   dogImg.onload = () => {
     // Maintain aspect ratio for dog
@@ -339,15 +340,30 @@ function startDogGame(){
     const dogWidth = dogTargetHeight * dogAspect;
     const dogHeight = dogTargetHeight;
 
+    // -------------------------------
+    // Resize canvas for mobile
+    // -------------------------------
+    function resizeGameCanvas() {
+      const maxWidth = 500; // desktop max
+      const scaleWidth = Math.min(window.innerWidth * 0.9, maxWidth);
+      const scaleRatio = scaleWidth / maxWidth;
+      gameScale = scaleRatio;
+
+      canvas.width = maxWidth * gameScale;
+      canvas.height = 200 * gameScale;
+    }
+    resizeGameCanvas();
+    window.addEventListener("resize", resizeGameCanvas);
+
     function init(){
       dog = {
-        x: 50,
-        y: 180 - dogHeight,
-        width: dogWidth,
-        height: dogHeight,
+        x: 50 * gameScale,
+        y: canvas.height - dogHeight * gameScale,
+        width: dogWidth * gameScale,
+        height: dogHeight * gameScale,
         vy: 0,
-        gravity: 0.6,
-        jump: -14,
+        gravity: 0.6 * gameScale,
+        jump: -14 * gameScale,
         grounded: true
       };
 
@@ -369,10 +385,7 @@ function startDogGame(){
     // -----------------------------
     function spawnNextObstacle(){
       if(gameOver) return;
-
-      spawn(); // spawn a new obstacle
-
-      // Random interval between 800ms and 1800ms
+      spawn();
       const nextTime = 800 + Math.random() * 1000;
       setTimeout(spawnNextObstacle, nextTime);
     }
@@ -381,12 +394,12 @@ function startDogGame(){
       const img = obstacleImgs[Math.floor(Math.random() * obstacleImgs.length)];
       const obsTargetHeight = 50;
       const aspect = img.naturalWidth / img.naturalHeight;
-      const obsWidth = obsTargetHeight * aspect;
-      const obsHeight = obsTargetHeight;
+      const obsWidth = obsTargetHeight * aspect * gameScale;
+      const obsHeight = obsTargetHeight * gameScale;
 
       obstacles.push({
         x: canvas.width,
-        y: 180 - obsHeight,
+        y: canvas.height - obsHeight,
         width: obsWidth,
         height: obsHeight,
         img: img
@@ -399,13 +412,13 @@ function startDogGame(){
 
       // Ground
       ctx.fillStyle="#444";
-      ctx.fillRect(0,180,canvas.width,5);
+      ctx.fillRect(0, canvas.height - 5, canvas.width, 5);
 
       // Dog physics
       dog.vy += dog.gravity;
       dog.y += dog.vy;
-      if(dog.y >= 180 - dog.height){
-        dog.y = 180 - dog.height;
+      if(dog.y >= canvas.height - dog.height){
+        dog.y = canvas.height - dog.height;
         dog.vy = 0;
         dog.grounded = true;
       }
@@ -415,7 +428,7 @@ function startDogGame(){
 
       // Obstacles
       obstacles.forEach((o,i)=>{
-        o.x -= 4;
+        o.x -= 4 * gameScale;
         ctx.drawImage(o.img, o.x, o.y, o.width, o.height);
 
         // Collision
@@ -427,8 +440,8 @@ function startDogGame(){
         ){
           gameOver = true;
           ctx.fillStyle = "white";
-          ctx.font = "20px monospace";
-          ctx.fillText("GAME OVER", 170, 100);
+          ctx.font = `${20 * gameScale}px monospace`;
+          ctx.fillText("GAME OVER", canvas.width/2 - 70, canvas.height/2 - 10);
           restartBtn.style.display = "inline-block";
           presaveBtn.style.display = "inline-block";
         }
@@ -440,17 +453,29 @@ function startDogGame(){
       });
 
       ctx.fillStyle = "white";
-      ctx.font = "16px monospace";
+      ctx.font = `${16 * gameScale}px monospace`;
       ctx.fillText("Score: " + score, 10, 20);
 
       requestAnimationFrame(update);
     }
 
-    document.addEventListener("keydown", e=>{
-      if(e.code === "Space" && dog.grounded && !gameOver){
+    // -------------------------------
+    // Controls: space + tap
+    // -------------------------------
+    function jumpDog() {
+      if(dog.grounded && !gameOver){
         dog.vy = dog.jump;
         dog.grounded = false;
       }
+    }
+
+    document.addEventListener("keydown", e => {
+      if(e.code === "Space") jumpDog();
+    });
+
+    canvas.addEventListener("touchstart", e => {
+      e.preventDefault(); // prevent scrolling
+      jumpDog();
     });
 
     restartBtn.onclick = () => init();
@@ -460,6 +485,7 @@ function startDogGame(){
   };
 }
 </script>
+
 
 
 
