@@ -354,97 +354,123 @@ function startDogGame(){
     let dogWidth = dogTargetHeight * dogAspect;
     let dogHeight = dogTargetHeight;
 
-function init(){
-  // Smaller dog for Flappy mode
-  if(mode === "flappy"){
-    const flappyHeight = 35;
-    dogWidth = flappyHeight * dogAspect;
-    dogHeight = flappyHeight;
-    dogYStart = (canvas.height - dogHeight) / 2; // center vertically
-    dogGravity = 0.3;   // slower fall
-    dogJump = -1;       // slower rise
-  } else {
-    dogWidth = dogTargetHeight * dogAspect;
-    dogHeight = dogTargetHeight;
-    dogYStart = 180 - dogHeight;
-    dogGravity = 0.6;
-    dogJump = -14;
-  }
+    // ========================
+    // Responsive canvas setup
+    // ========================
+    const maxCanvasWidth = 500;
+    const maxCanvasHeight = 200;
+    let scale = 1;
 
-  dog = {
-    x: 50,
-    y: dogYStart,
-    width: dogWidth,
-    height: dogHeight,
-    vy: 0,
-    gravity: dogGravity,
-    jump: dogJump,
-    grounded: mode === "runner" ? true : false
-  };
+    function resizeGameCanvas() {
+      const parentWidth = window.innerWidth * 0.9;  // 90% of screen width
+      const parentHeight = window.innerHeight * 0.35; // ~1/3 of screen height
+      scale = Math.min(parentWidth / maxCanvasWidth, parentHeight / maxCanvasHeight, 1);
 
-  obstacles = [];
-  score = 0;
-  gameOver = false;
+      canvas.width = maxCanvasWidth * scale;
+      canvas.height = maxCanvasHeight * scale;
 
-  restartBtn.style.display = "none";
-  presaveBtn.style.display = "none";
-  flappyBtn.style.display = "none"; // only show after first game over
-
-  clearInterval(interval);
-  interval = setInterval(spawn, 1500);
-  update();
-}
-
-// Inside jump() function
-function jump(){
-  // For Flappy mode, make the jump very small
-  dog.vy = mode === "runner" ? dog.jump : -2; // <- reduced jump distance
-  dog.grounded = false;
-}
-
-
-    function spawn(){
-      if(mode === "runner"){
-        const img = runnerObstacles[Math.floor(Math.random()*runnerObstacles.length)];
-        const obsTargetHeight = 50;
-        const aspect = img.naturalWidth / img.naturalHeight;
-        const obsWidth = obsTargetHeight * aspect;
-        const obsHeight = obsTargetHeight;
-
-        obstacles.push({
-          x: canvas.width,
-          y: 180 - obsHeight,
-          width: obsWidth,
-          height: obsHeight,
-          img: img
-        });
-      } else if(mode === "flappy"){
-        const img = flappyObstacles[0];
-        const obsWidth = 40;
-        const obsHeight = 80 + Math.random()*50;
-        const gap = 100; // gap between top and bottom
-        const topUpsideDown = Math.random() < 0.5;
-
-        // top obstacle
-        obstacles.push({
-          x: canvas.width,
-          y: 0,
-          width: obsWidth,
-          height: obsHeight,
-          img: img,
-          upsideDown: topUpsideDown
-        });
-        // bottom obstacle
-        obstacles.push({
-          x: canvas.width,
-          y: obsHeight + gap,
-          width: obsWidth,
-          height: canvas.height - obsHeight - gap,
-          img: img,
-          upsideDown: !topUpsideDown
-        });
+      // Adjust dog size proportionally
+      if(dog){
+        dog.width = dogHeight * dogAspect * scale;
+        dog.height = dogHeight * scale;
+        if(mode === "flappy"){
+          dog.y = (canvas.height - dog.height)/2;
+        } else {
+          dog.y = canvas.height - dog.height - 20; // ground offset
+        }
       }
     }
+
+    window.addEventListener("resize", resizeGameCanvas);
+
+    // ========================
+    function init(){
+      // Smaller dog for Flappy mode
+      let dogYStart, dogGravity, dogJump;
+      if(mode === "flappy"){
+        dogHeight = 35;
+        dogWidth = dogHeight * dogAspect;
+        dogYStart = (canvas.height - dogHeight)/2;
+        dogGravity = 0.25;   // slower fall
+        dogJump = -2;        // small jump
+      } else {
+        dogHeight = dogTargetHeight;
+        dogWidth = dogHeight * dogAspect;
+        dogYStart = canvas.height - dogHeight - 20; // ground offset
+        dogGravity = 0.6;
+        dogJump = -14;
+      }
+
+      dog = {
+        x: 50,
+        y: dogYStart,
+        width: dogWidth * scale,
+        height: dogHeight * scale,
+        vy: 0,
+        gravity: dogGravity,
+        jump: dogJump,
+        grounded: mode === "runner"
+      };
+
+      obstacles = [];
+      score = 0;
+      gameOver = false;
+
+      restartBtn.style.display = "none";
+      presaveBtn.style.display = "none";
+      flappyBtn.style.display = "none"; // only show after first game over
+
+      clearInterval(interval);
+      interval = setInterval(spawn, 1500);
+      resizeGameCanvas();
+      update();
+    }
+
+function spawn(){
+  if(mode === "runner"){
+    const img = runnerObstacles[Math.floor(Math.random()*runnerObstacles.length)];
+    const obsTargetHeight = 50;
+    const aspect = img.naturalWidth / img.naturalHeight;
+    const obsWidth = obsTargetHeight * aspect;
+    const obsHeight = obsTargetHeight;
+
+    // Align obstacle bottom with ground
+    const groundY = canvas.height - 20; // same ground offset as dog
+    obstacles.push({
+      x: canvas.width,
+      y: groundY - obsHeight * scale, // bottom edge on ground
+      width: obsWidth * scale,
+      height: obsHeight * scale,
+      img: img
+    });
+  } else if(mode === "flappy"){
+    const img = flappyObstacles[0];
+    const obsWidth = 40;
+    const obsHeight = 80 + Math.random()*50;
+    const gap = 100;
+    const topUpsideDown = Math.random() < 0.5;
+
+    // top obstacle
+    obstacles.push({
+      x: canvas.width,
+      y: 0,
+      width: obsWidth * scale,
+      height: obsHeight * scale,
+      img: img,
+      upsideDown: topUpsideDown
+    });
+    // bottom obstacle
+    obstacles.push({
+      x: canvas.width,
+      y: obsHeight + gap,
+      width: obsWidth * scale,
+      height: canvas.height - (obsHeight + gap),
+      img: img,
+      upsideDown: !topUpsideDown
+    });
+  }
+}
+
 
     function update(){
       if(gameOver) return;
@@ -453,7 +479,7 @@ function jump(){
       // Ground line for runner
       if(mode==="runner"){
         ctx.fillStyle="#444";
-        ctx.fillRect(0,180,canvas.width,5);
+        ctx.fillRect(0, canvas.height - 20, canvas.width, 5);
       }
 
       // Physics
@@ -461,8 +487,8 @@ function jump(){
       dog.y += dog.vy;
 
       // Runner ground collision
-      if(mode==="runner" && dog.y >= 180 - dog.height){
-        dog.y = 180 - dog.height;
+      if(mode==="runner" && dog.y >= canvas.height - dog.height - 20){
+        dog.y = canvas.height - dog.height - 20;
         dog.vy = 0;
         dog.grounded = true;
       }
@@ -473,7 +499,7 @@ function jump(){
         clearInterval(interval);
         ctx.fillStyle="white";
         ctx.font="20px monospace";
-        ctx.fillText("GAME OVER", 170, 100);
+        ctx.fillText("GAME OVER", canvas.width/2 - 70, 100);
         restartBtn.style.display = "inline-block";
         presaveBtn.style.display = "inline-block";
         flappyBtn.style.display = "inline-block";
@@ -506,7 +532,7 @@ function jump(){
           clearInterval(interval);
           ctx.fillStyle = "white";
           ctx.font = "20px monospace";
-          ctx.fillText("GAME OVER", 170, 100);
+          ctx.fillText("GAME OVER", canvas.width/2 - 70, 100);
           restartBtn.style.display = "inline-block";
           presaveBtn.style.display = "inline-block";
           flappyBtn.style.display = "inline-block";
@@ -527,7 +553,7 @@ function jump(){
 
     // Controls
     function jump(){
-      dog.vy = mode==="runner" ? dog.jump : -8; // smaller jump for Flappy
+      dog.vy = mode==="runner" ? dog.jump : -2;
       dog.grounded = false;
     }
 
@@ -552,7 +578,6 @@ function jump(){
   };
 }
 </script>
-
 
 
 
